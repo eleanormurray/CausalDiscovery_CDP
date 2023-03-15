@@ -1,6 +1,6 @@
-libname cdp "C:\Users\ejmurray\Dropbox\ProjectManagement\Trials\CDP\CDP_paper_final";
+libname cdp "<raw data location>";
 
-libname autoDAG 'C:\Users\ejmurray\Dropbox\ProjectManagement\DAGopedia\Auto_DAGs\RealData';
+libname autoDAG '<working data location>';
 
 data autoDAG.cdp_binary;
 	set cdp.binary;
