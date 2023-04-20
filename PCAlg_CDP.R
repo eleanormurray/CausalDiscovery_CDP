@@ -25,12 +25,21 @@ trial <- read.csv("C:\\Users\\ejmurray\\Dropbox\\ProjectManagement\\DAGopedia\\A
 #convert risk group to values 0,1,2 (from 1,2,3)
 trial$IRK<-as.integer(trial$IRK-1)
 
+
 #Omit individuals with any missingness
 trials_complete<-na.omit(trial)
 
-#Variables in datasets
-names(trials_complete)
 
+#Variables in dataset
+names(trials_complete)
+# Load the label file as a data frame
+labels_df <- read.csv("labels.csv")
+names(labels_df)
+for(i in 1:nrow(labels_df)){
+  names(trials_complete)[names(trials_complete)==labels_df[i,"ï..variable"]]<-labels_df[i,"label"]
+}
+names(trials_complete)
+names(trials_complete)<-gsub(" ", "\n", names(trials_complete))
 
 #Set trial dataset for PC algorithm: suffStat  = CDP1980 variable list; suffStat2 = expanded expert variable list
 suffStat<-list(dm=trials_complete, adaptDF=FALSE)
@@ -39,12 +48,16 @@ suffStat<-list(dm=trials_complete, adaptDF=FALSE)
 #Custom plot output
 mygraph <- function(pcgraph, a){
   g <- as.bn(pcgraph, check.cycles = FALSE)
-  graphviz.plot(g, shape = "ellipse", main = paste("cpDAG, alpha =", a))
+  gR = graphviz.plot(g, shape = "rectangle", main=paste("cpDAG, alpha =", a), render = FALSE)
+  gR = layoutGraph(gR, attrs = list(graph = list(rankdir="LR")))
+  nodeRenderInfo(gR)$col[nodes(g)]="transparent"
+  nodeRenderInfo(gR)$textCol["Death"]="Red"
+  nodeRenderInfo(gR)$textCol["Adherence"]="Red"
+  nodeRenderInfo(gR)$lWidth[nodes(g)]=4
+  nodeRenderInfo(gR)$fontsize[nodes(g)]=45
+  graphRenderInfo(gR)$cex.main=0.6
+  renderGraph(gR)
 }
-
-
-####################################
-#Original variable list (suffStat)
 
 ##############################
 #run PC algorithm, alpha = 0.01
@@ -59,12 +72,12 @@ fit.mat<-(as(pcalg_fit_mix, "matrix") != 0)
 fit.mat
 print.table(1*fit.mat, zero.=".")
 
-
-
 #basic plot of edge matrix
 plot(as(t(fit.mat), "graphNEL"), main = "alpha = 0.01")
 
-mygraph(pcalg_fit_mix, 0.01)
+#nicer graph
+g01<-mygraph(pcalg_fit_mix, 0.01)
+g01
 
 ###############################
 #run PC algorithm, alpha = 0.10
@@ -80,7 +93,8 @@ fit.mat2
 print.table(1*fit.mat2, zero.=".")
 
 plot(as(t(fit.mat2), "graphNEL"), main = "alpha = 0.10")
-mygraph(pcalg_fit_mix2, 0.10)
+g10<-mygraph(pcalg_fit_mix2, 0.10)
+g10
 
 ###################################
 #run PC algorithm, alpha = 0.05
@@ -96,8 +110,8 @@ fit.mat3
 print.table(1*fit.mat3, zero.=".")
 
 plot(as(t(fit.mat3), "graphNEL"), main = "alpha = 0.05")
-mygraph(pcalg_fit_mix3, 0.05)
-
+g05<-mygraph(pcalg_fit_mix3, 0.05)
+g05
 
 ###############################
 #run PC algorithm, alpha = 0.20
@@ -113,8 +127,8 @@ fit.mat4
 print.table(1*fit.mat4, zero.=".")
 
 plot(as(t(fit.mat4), "graphNEL"), main = "alpha = 0.20")
-mygraph(pcalg_fit_mix4, 0.20)
-
+g20<-mygraph(pcalg_fit_mix4, 0.20)
+g20
 
 ###############################
 #run PC algorithm, alpha = 0.001
@@ -131,5 +145,5 @@ print.table(1*fit.mat5, zero.=".")
 sum(fit.mat5)
 
 plot(as(t(fit.mat5), "graphNEL"), main = "alpha = 0.001")
-mygraph(pcalg_fit_mix5, 0.001)
-
+g001<-mygraph(pcalg_fit_mix5, 0.001)
+g001
